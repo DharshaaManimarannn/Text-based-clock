@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aurora Neon Clock</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+
+  /* 🌌 Aurora Background */
+  background: url('https://res.cloudinary.com/icelandtours/g_auto,f_auto,c_fill,w_2048,q_auto:good/northern_lights_above_glacier_lagoon_v2osk_unsplash_7d39ca647f.jpg') no-repeat center center/cover;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* 🌙 Overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* CLOCK */
+.clock {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  gap: 14px;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.25);
+  padding: 20px 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+
+  transition: transform 0.3s ease;
+}
+
+.clock:hover {
+  transform: scale(1.2);
+}
+
+/* DIGIT */
+.digit {
+  position: relative;
+  width: 80px;
+  height: 140px;
+}
+
+/* ✅ FIXED AURORA COLOR */
+:root {
+  --color: #42ff62; /* calm aurora cyan */
+}
+
+/* SEGMENTS */
+.segment {
+  position: absolute;
+  background: var(--color);
+  border-radius: 4px;
+  box-shadow: 0 0 25px var(--color);
+  transition: 0.25s;
+}
+
+.off {
+  background: rgba(255,255,255,0.08);
+  box-shadow: none;
+}
+
+/* SEGMENTS */
+.a { top: 0; left: 18px; width: 44px; height: 10px; }
+.b { top: 10px; right: 0; width: 10px; height: 55px; }
+.c { bottom: 10px; right: 0; width: 10px; height: 55px; }
+.d { bottom: 0; left: 18px; width: 44px; height: 10px; }
+.e { bottom: 10px; left: 0; width: 10px; height: 55px; }
+.f { top: 10px; left: 0; width: 10px; height: 55px; }
+.g { top: 65px; left: 18px; width: 44px; height: 10px; }
+
+.colon {
+  color: var(--color);
+  font-size: 55px;
+  text-shadow: 0 0 25px var(--color);
+}
+</style>
+</head>
+
+<body>
+
+<div class="clock" id="clock"></div>
+
+<script>
+class SevenSegment {
+  constructor(parent) {
+    this.el = document.createElement("div");
+    this.el.className = "digit";
+
+    this.segments = {};
+
+    ["a","b","c","d","e","f","g"].forEach(s => {
+      const div = document.createElement("div");
+      div.className = "segment " + s;
+      this.el.appendChild(div);
+      this.segments[s] = div;
+    });
+
+    parent.appendChild(this.el);
+  }
+
+  set(num) {
+    const map = {
+      0: ["a","b","c","d","e","f"],
+      1: ["b","c"],
+      2: ["a","b","g","e","d"],
+      3: ["a","b","g","c","d"],
+      4: ["f","g","b","c"],
+      5: ["a","f","g","c","d"],
+      6: ["a","f","g","e","c","d"],
+      7: ["a","b","c"],
+      8: ["a","b","c","d","e","f","g"],
+      9: ["a","b","c","d","f","g"]
+    };
+
+    Object.keys(this.segments).forEach(s => {
+      this.segments[s].classList.add("off");
+    });
+
+    map[num].forEach(s => {
+      this.segments[s].classList.remove("off");
+    });
+  }
+}
+
+/* CLOCK SETUP */
+const clock = document.getElementById("clock");
+
+let h1 = new SevenSegment(clock);
+let h2 = new SevenSegment(clock);
+
+let c1 = document.createElement("div");
+c1.className = "colon";
+c1.innerText = ":";
+clock.appendChild(c1);
+
+let m1 = new SevenSegment(clock);
+let m2 = new SevenSegment(clock);
+
+let c2 = document.createElement("div");
+c2.className = "colon";
+c2.innerText = ":";
+clock.appendChild(c2);
+
+let s1 = new SevenSegment(clock);
+let s2 = new SevenSegment(clock);
+
+/* UPDATE CLOCK */
+function updateClock() {
+  let now = new Date();
+
+  let h = String(now.getHours()).padStart(2,"0");
+  let m = String(now.getMinutes()).padStart(2,"0");
+  let s = String(now.getSeconds()).padStart(2,"0");
+
+  h1.set(+h[0]);
+  h2.set(+h[1]);
+
+  m1.set(+m[0]);
+  m2.set(+m[1]);
+
+  s1.set(+s[0]);
+  s2.set(+s[1]);
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+
+</body>
+</html>
